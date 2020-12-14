@@ -11,23 +11,23 @@ mutex g_lockprint;
 
 struct fork
 {
-	mutex mutex; //мьютекс, будет заблокирован, когда философ поднимет вилку, и разблокирован, когда он положит ее.
+	mutex mutex; //РјСЊСЋС‚РµРєСЃ, Р±СѓРґРµС‚ Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅ, РєРѕРіРґР° С„РёР»РѕСЃРѕС„ РїРѕРґРЅРёРјРµС‚ РІРёР»РєСѓ, Рё СЂР°Р·Р±Р»РѕРєРёСЂРѕРІР°РЅ, РєРѕРіРґР° РѕРЅ РїРѕР»РѕР¶РёС‚ РµРµ.
 };
 
 struct table
 {
-	array<fork, num_philosophers> forks; //массив вилок
+	array<fork, num_philosophers> forks; //РјР°СЃСЃРёРІ РІРёР»РѕРє
 };
 
 class philosopher
 {
 private:
-	string const name; //имя
-	table const& dinnertable; //указатель на стол
-	fork& left_fork; //указатель на вилку слева
-	fork& right_fork;//указатель на вилку справа
+	string const name; //РёРјСЏ
+	table const& dinnertable; //СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚РѕР»
+	fork& left_fork; //СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РІРёР»РєСѓ СЃР»РµРІР°
+	fork& right_fork;//СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РІРёР»РєСѓ СЃРїСЂР°РІР°
 	thread lifethread;
-	mt19937 rng{ random_device{}() }; //случайное число
+	mt19937 rng{ random_device{}() }; //СЃР»СѓС‡Р°Р№РЅРѕРµ С‡РёСЃР»Рѕ
 public:
 	philosopher(string n, table const& t, fork& l, fork& r) :
 		name(n), dinnertable(t), left_fork(l), right_fork(r), lifethread(&philosopher::dine, this)
@@ -36,15 +36,15 @@ public:
 
 	~philosopher()
 	{
-		lifethread.join(); //приостанавливает выполнение
+		lifethread.join(); //РїСЂРёРѕСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ РІС‹РїРѕР»РЅРµРЅРёРµ
 	}
 
 	void dine()
 	{
 		do
 		{
-			think(); //думать
-			eat(); //кушать
+			think(); //РґСѓРјР°С‚СЊ
+			eat(); //РєСѓС€Р°С‚СЊ
 		} while (true);
 	}
 
@@ -56,41 +56,42 @@ public:
 
 	void eat()
 	{
-		lock(left_fork.mutex, right_fork.mutex); //запрос мьютексу
+		lock(left_fork.mutex, right_fork.mutex); //Р·Р°РїСЂРѕСЃ РјСЊСЋС‚РµРєСЃСѓ
 
 		lock_guard<mutex> left_lock(left_fork.mutex, adopt_lock);
 		lock_guard<mutex> right_lock(right_fork.mutex, adopt_lock);
 
-		print(" начал трапезу.");
+		print(" РЅР°С‡Р°Р» С‚СЂР°РїРµР·Сѓ.");
 
-		static thread_local uniform_int_distribution<> dist(1, 6); //генерация случайного числа
-		this_thread::sleep_for(chrono::milliseconds(dist(rng) * 50)); //ожидание
+		static thread_local uniform_int_distribution<> dist(1, 6); //РіРµРЅРµСЂР°С†РёСЏ СЃР»СѓС‡Р°Р№РЅРѕРіРѕ С‡РёСЃР»Р°
+		this_thread::sleep_for(chrono::milliseconds(dist(rng) * 50)); //РѕР¶РёРґР°РЅРёРµ
 
-		print(" закончил трапезу.");
+		print(" Р·Р°РєРѕРЅС‡РёР» С‚СЂР°РїРµР·Сѓ.");
 	}
 
 	void think()
 	{
-		static thread_local uniform_int_distribution<> wait(1, 6);//генерация случ чисел
-		this_thread::sleep_for(chrono::milliseconds(wait(rng) * 150));//ожидание
+		print(" СЂР°Р·РјС‹С€Р»СЏРµС‚.");
+		static thread_local uniform_int_distribution<> wait(1, 6);//РіРµРЅРµСЂР°С†РёСЏ СЃР»СѓС‡ С‡РёСЃРµР»
+		this_thread::sleep_for(chrono::milliseconds(wait(rng) * 150));//РѕР¶РёРґР°РЅРёРµ
 
-		print(" размышляет.");
+		print(" РіРѕР»РѕРґРµРЅ.");
 	}
 };
 
 void dine()
 {
 	this_thread::sleep_for(chrono::seconds(1));
-	cout << "Начало обеда" << endl;
+	cout << "РќР°С‡Р°Р»Рѕ РѕР±РµРґР°" << endl;
 	table table;
 	array<philosopher, num_philosophers> philosophers
 		{
 		{
-		{ "Сократ", table, table.forks[0], table.forks[1] },
-		{ "Эпикур", table, table.forks[1], table.forks[2] },
-		{ "Платон", table, table.forks[2], table.forks[3] },
-		{ "Шиллер", table, table.forks[3], table.forks[4] },
-		{ "Декарт", table, table.forks[4], table.forks[0] },
+		{ "РЎРѕРєСЂР°С‚", table, table.forks[0], table.forks[1] },
+		{ "Р­РїРёРєСѓСЂ", table, table.forks[1], table.forks[2] },
+		{ "РџР»Р°С‚РѕРЅ", table, table.forks[2], table.forks[3] },
+		{ "РЁРёР»Р»РµСЂ", table, table.forks[3], table.forks[4] },
+		{ "Р”РµРєР°СЂС‚", table, table.forks[4], table.forks[0] },
 		}
 		};
 }
